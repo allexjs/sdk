@@ -50,6 +50,7 @@ function createPBWebAppInterpreter (Lib, Node) {
 
 
   PBWebAppInterpreter.prototype._go = function (grunt, params, defer) {
+    var linkpath;
     Fs.removeSync(Path.resolve(this.cwd, '_generated'));
     if (!this.pbwr) return this.error('No reader set ...');
     if (!this.pbwr.isReady()) {
@@ -72,7 +73,12 @@ function createPBWebAppInterpreter (Lib, Node) {
     };
 
     //first check if there is a link to includes and layouts
-    if (!Fs.existsSync(Path.resolve(this.cwd, 'includes'))){
+    linkpath = Path.resolve(this.cwd, 'includes');
+    if (!Fs.existsSync(linkpath)){
+      try {
+      if (Fs.readlinkSync(linkpath)){
+        Fs.removeSync(linkpath);
+      }}catch(ignore){}
       config.symlink.includes = {
         files : [{src: Path.resolve(WEBAPP_TEMPLATES, 'includes'), dest: Path.resolve(this.cwd, 'includes')}]
       };
@@ -80,7 +86,12 @@ function createPBWebAppInterpreter (Lib, Node) {
       config.symlink.includes = {};
     }
 
-    if (!Fs.existsSync(Path.resolve(this.cwd, 'layouts'))){
+    linkpath = Path.resolve(this.cwd, 'layouts');
+    if (!Fs.existsSync(linkpath)){
+      try {
+      if (Fs.readlinkSync(linkpath)){
+        Fs.removeSync(linkpath);
+      }} catch(ignore){}
       config.symlink.layouts = {
         files : [{src: Path.resolve(WEBAPP_TEMPLATES, 'layouts'), dest: Path.resolve(this.cwd, 'layouts')}]
       };

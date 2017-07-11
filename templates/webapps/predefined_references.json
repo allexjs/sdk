@@ -7,7 +7,6 @@
       },
       "components/components-font-awesome/css/font-awesome.css",
       "components/angular-ui-grid/ui-grid.css",
-      "components/allex/css/lib.css",
       "generic.css",
       "overrides.css"
   ],
@@ -20,7 +19,6 @@
         "d": "jquery.js",
         "m": "jquery.min.js"
       },
-      "components/allex/dist/browserified.js",
       {
         "p": "components/angular",
         "d": "angular.js",
@@ -41,11 +39,11 @@
         "d": "ui-bootstrap-tpls.js",
         "m": "ui-bootstrap-tpls.min.js"
       },
-      "components/angular-ui-grid/ui-grid.js",
-      "components/allex/dist/browserified.js"
+      "components/angular-ui-grid/ui-grid.js"
    ],
    "#ALLEXBASIC": [
       "allex:http",
+      "allex:userrepresentation:lib",
       "allex:entrypoint",
       "allex:datafilters:lib",
       "allex:data",
