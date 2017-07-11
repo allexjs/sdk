@@ -1,0 +1,16 @@
+#!/usr/bin/env node
+
+var lib = require('allexlib'),
+  BasicProgram = require('allex_basicprogramsdklib')(lib),
+  Node = require('allex_nodehelpersserverruntimelib')(lib),
+  create = require('../src/ws/projects/create')(lib, Node);
+
+var p = new BasicProgram(__dirname);
+
+p.program
+p.go();
+
+create(p.program.args[0]).done (
+  Node.info.bind(Node),
+  Node.error.bind(Node)
+);

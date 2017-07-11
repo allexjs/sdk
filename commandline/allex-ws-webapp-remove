@@ -1,0 +1,18 @@
+#!/usr/bin/env node
+
+var lib = require('allexlib'),
+  BasicProgram = require('allex_basicprogramsdklib')(lib),
+  Node = require('allex_nodehelpersserverruntimelib')(lib),
+  remove = require('../src/ws/websuites/removefromsuite')(lib, Node);
+
+var p = new BasicProgram(__dirname);
+p.program.option ('-f, --force', 'Force clone');
+p.program.usage('<websolutionname> [options]');
+p.go();
+
+remove(p.program.args[0],{
+  force : !!p.program.force
+}).done (
+  Node.info.bind(Node),
+  Node.error.bind(Node)
+);

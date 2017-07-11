@@ -1,0 +1,79 @@
+{
+  "#BASIC_CSS": [
+      {
+        "p": "components/bootstrap/dist/css",
+        "d": "bootstrap.css",
+        "m": "bootstrap.min.css"
+      },
+      "components/components-font-awesome/css/font-awesome.css",
+      "components/angular-ui-grid/ui-grid.css",
+      "components/allex/css/lib.css",
+      "generic.css",
+      "overrides.css"
+  ],
+  "#WEBFONTLOADER": [
+    "components/webfontloader/webfontloader.js"
+  ],
+  "#REQUIREMENTS" : [
+      {
+        "p": "components/jquery/dist",
+        "d": "jquery.js",
+        "m": "jquery.min.js"
+      },
+      "components/allex/dist/browserified.js",
+      {
+        "p": "components/angular",
+        "d": "angular.js",
+        "m": "angular.min.js"
+      },
+      {
+        "p" : "components/angular-animate",
+        "d" : "angular-animate.js",
+        "m" : "angular-animate.min.js"
+      },
+      {
+        "p": "components/bootstrap/dist/js/",
+        "d": "bootstrap.js",
+        "m": "bootstrap.min.js"
+      },
+      {
+        "p": "components/angular-bootstrap",
+        "d": "ui-bootstrap-tpls.js",
+        "m": "ui-bootstrap-tpls.min.js"
+      },
+      "components/angular-ui-grid/ui-grid.js",
+      "components/allex/dist/browserified.js"
+   ],
+   "#ALLEXBASIC": [
+      "allex:http",
+      "allex:entrypoint",
+      "allex:datafilters:lib",
+      "allex:data",
+      "allex:servicecontainer",
+      "allex:servicecollection",
+      "allex:user",
+      "allex:hotel",
+      "allex:usersessions",
+      "allex:leveldb:lib",
+      "allex:buffer:lib",
+      "allex:leveldb",
+      "allex:userresolver",
+      "allex:genericuserdata"
+   ],
+   "#ALLEX_BROWSER_CORE": [
+     "components/allex_browsercore/dist/browsercore.js",
+     "components/allexns/ns.js"
+   ],
+   "#VEKTR" : [
+      "components/vektr/dist/bridge.allex.js",
+      "components/vektr/dist/lib.js",
+      "components/vektr/dist/angular.js"
+   ],
+   "#BOOT": [
+     "PAGE/fontloaderconfig.js",
+     "PAGE/boot.js"
+   ],
+   "#CONFIG" :[
+    "PAGE/configs.js"
+   ]
+}

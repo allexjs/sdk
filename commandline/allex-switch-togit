@@ -1,0 +1,94 @@
+#!/usr/bin/env node
+var lib = require('allexlib'),
+  Node = require('allex_nodehelpersserverruntimelib')(lib),
+  Fs = Node.Fs,
+  Path = Node.Path,
+  q = lib.q,
+  BasicProgram = require('allex_basicprogramsdklib')(lib),
+  decode = require('../lib/switchgitdecoder.js')(lib, Node);
+
+var p = new BasicProgram(__dirname);
+p.program.usage('Use this tool to switch given node module to a git repo: allex-switch-togit <service_or_module>');
+p.go();
+
+var args = p.program.args;
+if (args.length < 1) {
+  Node.error('Missing node module/service name for switch command ...');
+  p.showHelp();
+  process.exit(1);
+}
+
+var current = process.cwd();
+if (!Fs.dirExists('node_modules')) {
+  Fs.mkdirSync('node_modules');
+}
+
+
+function createCloneCommands (target) {
+  return decode(target).then(onDecode.bind(null, target));
+}
+
+function onDecode (target, ddec) {
+  var d = q.defer();
+  if (ddec && Fs.dirExists(ddec.rtarget)){
+    var pname = ddec.pname,
+      group = ddec.group,
+      rtarget = ddec.rtarget,
+      rdir = Path.dirname(rtarget),
+      ctarget = Path.join(rdir, '..',  'allexjs_modules_dev', ddec.modulename);
+    Node.info('AllEx service detected, will clone it if possible ...');
+    if (Fs.existsSync(Path.join(rtarget, '.git'))){
+      d.reject('git repo, cowardly retreating');
+    }else{
+      //console.log('rm -rf '+rtarget+' && git clone '+ddec.gitclonestring+' '+ctarget+' && cd '+ctarget+' && npm install && cd - && cd '+rdir+' && ln -s '+ctarget, ddec);
+      Node.executeCommand('rm -rf '+rtarget+' && git clone '+ddec.gitclonestring+' '+ctarget+' && cd '+ctarget+' && npm install && cd - && cd '+rdir+' && ln -s '+Path.relative(rdir, ctarget), d, null, true);
+    }
+  } else {
+    Node.info('AllEx service not detected, will try regular module');
+    if (Fs.dirExists(Path.join('node_modules',target))){
+      if (Fs.existsSync(Path.join('node_modules',target, '.git'))) {
+        d.reject('git repo, cowardly retreating');
+      }else{
+        try {
+          var pck = Fs.safeReadJSONFileSync (Path.join('node_modules',target, 'package.json'));
+          if (!pck) {
+            d.reject('No package.json');
+          }else if (!pck.repository) {
+            d.reject('No repository info');
+          }else if ('git' !== pck.repository.type){
+            d.reject('Invalid repo type');
+          }else if (!pck.repository.url){
+            d.reject('No repo url');
+          }else{
+            Node.executeCommand('rm -rf '+Path.join('node_modules',target)+' && git clone '+pck.repository.url.replace(/\.git$/, '')+' '+Path.join('node_modules', target), d, null, true);
+          }
+        }catch (e) {
+          d.reject(e);
+        }
+      }
+    }else{
+      d.reject('not found');
+    }
+  }
+  return d.promise;
+}
+
+function noteStatus (args, result, index) {
+  if ('rejected' === result.state){
+    Node.error(args[index], 'failed to switch due to ', result.reason);
+  }else if ('fulfilled' === result.state){
+    Node.info (args[index],'successfully switched');
+  }
+}
+
+try {
+  var pfs = args.map (createCloneCommands);
+  q.allSettled(pfs)
+  .done(function (result) {
+    result.forEach (noteStatus.bind(null, args));
+  });
+}catch (e) {
+  Node.error('Failed due to ',e.message);
+}
+
+process.chdir(current);

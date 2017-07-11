@@ -1,0 +1,28 @@
+#!/usr/bin/env node
+var config = require('../src/webalizer/grunt_web_app.js'),
+  compiler = require('../src/webapp/compilepage.js').findAndGo,
+  lib = require('allexlib'),
+  Grunter = require('allex_grunthelperssdklib')(lib),
+  BasicProgram = require('allex_basicprogramsdklib')(lib),
+  p = new BasicProgram(__dirname);
+
+p.program
+.usage('allex-webapp-build [OPTIONS] : Build your webapps using this tool')
+.option('-c, --clean','Remove all node modules and bower components')
+.option('-f, --file <path>','JSON file where connection data are stored')
+.option('-v, --verbose', 'Do a verbose run')
+.option('-r, --rebuild', 'Rebuild ProtoBoardComponents')
+.option('-d, --development', 'Devel build')
+.option('-o, --distro <string>', 'Build distro, overrides production/devel selection if given')
+p.go();
+
+
+compiler (process.cwd(), p.program.distro);
+Grunter.goforGrunt(config, {
+  connection: p.program.file,
+  devel : p.program.development,
+  clean : p.program.clean,
+  rebuild : p.program.clean || p.program.rebuild,
+  distro : p.program.distro
+},{verbose: p.program.verbose});
+

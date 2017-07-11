@@ -1,0 +1,24 @@
+#!/usr/bin/env node
+
+var lib = require('allexlib'),
+  BasicProgram = require('allex_basicprogramsdklib')(lib),
+  Node = require('allex_nodehelpersserverruntimelib')(lib),
+  remove = require('../src/ws/components/remove')(lib, Node);
+
+var p = new BasicProgram(__dirname);
+p.program
+  .option ('-f, --force', 'Force removal');
+p.go();
+
+if (!p.program.args[0]) {
+  Node.error('Component name needed, cowardly retreating');
+  return;
+}
+try {
+remove(p.program.args[0], {
+  force : !!p.program.force,
+  project: p.program.project
+});
+} catch(e) {
+  Node.error(e);
+}

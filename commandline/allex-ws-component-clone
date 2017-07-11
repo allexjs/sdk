@@ -1,0 +1,31 @@
+#!/usr/bin/env node
+
+var lib = require('allexlib'),
+  BasicProgram = require('allex_basicprogramsdklib')(lib),
+  Node = require('allex_nodehelpersserverruntimelib')(lib),
+  clone = require('../src/ws/components/clone')(lib, Node);
+
+var p = new BasicProgram(__dirname);
+
+p.program
+  .usage ('[options] <component_git_path>')
+  .option ('-p, --project <string>', 'Project name')
+  .option ('-n, --modulename <string>', 'Component name')
+  .option ('-f, --force', 'Force clone');
+p.go();
+
+
+if (!p.program.args[0]){
+  Node.error('Insufficient arguments');
+  p.showHelp();
+  process.exit();
+}
+
+clone(p.program.args[0], {
+  force : !!p.program.force,
+  project:p.program.project,
+  name:p.program.modulename
+}).done (
+  Node.info.bind(Node),
+  Node.error.bind(Node)
+);

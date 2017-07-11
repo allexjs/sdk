@@ -1,0 +1,29 @@
+#!/usr/bin/env node
+
+var lib = require('allexlib'),
+  BasicProgram = require('allex_basicprogramsdklib')(lib),
+  Node = require('allex_nodehelpersserverruntimelib')(lib),
+  addpage = require('../src/webapp/addpage')(lib, Node);
+
+var p = new BasicProgram(__dirname)
+
+p.program
+  .usage('[options] <pagename>')
+  .option('-f, --force', 'Force add page')
+  .option('-l, --frameworks <string>', 'Introduce framework');
+
+
+p.go();
+if (!p.program.args[0]){
+  Node.error('Insufficient arguments');
+  p.showHelp();
+  process.exit();
+}
+
+addpage (p.program.args[0], {
+  force : !!p.program.force,
+  frameworks : p.program.frameworks
+}).done (
+  Node.info.bind(Node),
+  Node.error.bind(Node)
+);

@@ -1,0 +1,27 @@
+#!/usr/bin/env node
+
+var lib = require('allexlib'),
+  BasicProgram = require('allex_basicprogramsdklib')(lib),
+  Node = require('allex_nodehelpersserverruntimelib')(lib),
+  forget = require('../src/ws/modules/forget')(lib, Node);
+
+/*
+var Toolbox = require('allex-toolbox'),
+  BasicProgram = Toolbox.node.BasicProgram,
+  RTToolbox = require('allex-rt-toolbox'),
+  Node = RTToolbox.node,
+  forget = require('../src/ws/modules/forget');
+*/
+
+var p = new BasicProgram(__dirname);
+p.program
+  .option ('-f, --force', 'Force clone')
+  .usage('<module_or_gitpath> [options]');
+p.go();
+
+forget(p.program.args[0], {
+  force : !!p.program.force
+}).done (
+  Node.info.bind(Node),
+  Node.error.bind(Node)
+);

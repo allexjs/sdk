@@ -1,0 +1,110 @@
+#!/usr/bin/env node
+var lib = require('allexlib'),
+  Node = require('allex_nodehelpersserverruntimelib')(lib),
+  Fs = Node.Fs,
+  Path = Node.Path,
+  q = lib.q,
+  ChildProcess = require('child_process'),
+  BasicProgram = require('allex_basicprogramsdklib')(lib),
+  decode = require('../lib/switchgitdecoder.js')(lib, Node),
+  Git = require('allex_githelperssdklib')(lib);
+
+var p = new BasicProgram(__dirname);
+p.program.usage('Use this tool to switch given node module git repo back to the node module : allex-switch-fromgit <service_or_module>');
+p.go();
+
+var args = p.program.args;
+if (args.length < 1) {
+  Node.error('Missing node module/service name for switch command ...');
+  p.showHelp();
+  process.exit(1);
+}
+
+var current = process.cwd();
+if (!Fs.dirExists('node_modules')) {
+  Fs.mkdirSync('node_modules');
+}
+
+function execSync (command, cwd){
+  return ChildProcess.execSync(command,{cwd: cwd || 'node_modules'}).toString();
+}
+
+function remifemptyer () {
+  Fs.removeDirIfEmpty('allexjs_modules_dev');
+}
+
+function createNpmCommands(defer, target) {
+  return decode(target).then(onDecode.bind(null, defer, target));
+}
+
+function onDecode (defer, target, ddc) {
+  if (!(ddc && 'object' === typeof ddc)) {
+    defer.reject(new Error('Module not recognized: '+target));
+    return;
+  }
+  try {
+    var allex_dir = Path.dirname(ddc.rtarget),
+      allex_path = Path.join(allex_dir, '..', 'allexjs_modules_dev', ddc.modulename),
+      node_path = Path.join('allexjs_modules_dev', target);
+    var resolve_path = Fs.dirExists(allex_path) ? allex_path : (Fs.dirExists(node_path) ?  node_path : null);
+    if (!resolve_path) {
+      defer.reject('Unable to locate module '+target);
+      return;
+    }
+
+    if (!Git.isDirClear(resolve_path)){
+      return;
+    }
+
+    var pckdata = Fs.safeReadJSONFileSync(Path.join(resolve_path, 'package.json'));
+    if (!pckdata) {defer.reject('No package.json data ...'); return;}
+    if (!pckdata.repository || 'git' !== pckdata.repository.type || !pckdata.repository.type) {
+      defer.reject('No valid repository info: '+pckdata.repository);
+      return;
+    }
+    var repo = urlMakeuper(pckdata.repository.url);
+    Node.info('Everything seems clean, time to npm install ...');
+    //console.log('rm '+ddc.rtarget+' rm -rf '+resolve_path+' && npm install '+repo);
+    defer.promise.then(
+      remifemptyer,
+      remifemptyer
+    );
+    Node.executeCommand('rm '+ddc.rtarget+' && rm -rf '+resolve_path+' && npm install '+repo, defer, null, true);
+  }catch (e) {
+    console.log('===>', e.message, e.stack);
+    defer.reject(e);
+  }
+}
+
+function urlMakeuper (url) {
+  if (url && url.indexOf && url.indexOf('git+') === 0) {
+    return url;
+  }
+  return 'git+ssh://'+url;
+}
+
+function prepareNpmCommands (name) {
+  var d = q.defer();
+  createNpmCommands(d, name);
+  return d.promise;
+}
+
+function noteStatus (args, result, index) {
+  if ('rejected' === result.state){
+    Node.error(args[index], 'failed to switch due to ', result.reason);
+  }else if ('fulfilled' === result.state){
+    Node.info (args[index],'successfully switched');
+  }
+}
+
+try {
+  var pfs = args.map (prepareNpmCommands);
+  q.allSettled(pfs)
+  .done(function (result) {
+    result.forEach (noteStatus.bind(null, args));
+  });
+}catch (e) {
+  Node.error('Failed due to ',e.message, e.stack);
+}
+
+process.chdir(current);

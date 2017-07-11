@@ -1,0 +1,7 @@
+#!/usr/bin/env node
+
+var execlib = require('allex'),
+  sscaff = require('allex_servicescaffoldingsdklib')(execlib);
+
+sscaff.scaffoldService();
+

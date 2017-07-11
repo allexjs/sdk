@@ -1,0 +1,10 @@
+#!/usr/bin/env node
+var Toolbox = require('allex-toolbox'),
+  BasicProgram = Toolbox.node.BasicProgram,
+  Grunter = Toolbox.grunter;
+
+var p = new BasicProgram(__dirname);
+p.program.usage('Run this program in order to build a webapp component');
+p.go();
+
+Grunter.goforGrunt(require('../src/webalizer/grunt_web_component.js'));

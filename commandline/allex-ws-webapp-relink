@@ -1,0 +1,14 @@
+#!/usr/local/bin/node
+
+var lib = require('allexlib'),
+  BasicProgram = require('allex_basicprogramsdklib')(lib),
+  Node = require('allex_nodehelpersserverruntimelib')(lib),
+  relink = require('../src/ws/websuites/relink.js')(lib, Node);
+
+var p = new BasicProgram(__dirname);
+p.go();
+
+relink().done (
+  Node.info.bind(Node),
+  Node.error.bind(Node)
+);

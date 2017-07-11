@@ -1,0 +1,5 @@
+#!/bin/bash
+
+. allex-shell-tools
+arr=("$@")
+install_bower "${arr[@]}" || { exit 1; }
