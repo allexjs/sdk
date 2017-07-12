@@ -20,11 +20,12 @@ function createClone (Lib, Node) {
     if (gitpath.indexOf('git+ssh://') === 0){
       gitpath = gitpath.replace('git+ssh://');
     }
-    this.name = null;
     this.tmp_dir = Path.resolve(ALLEX_WORKSPACE_DIR,'.tmp', 'components');
     this.bower_name = null;
     this.tmp_path = null;
     this.target_path = null;
+    this.gitpath = gitpath;
+    this.name = Git.getRepoName(this.gitpath);
 
     this.defer = Q.defer();
     if (gitpath.substring (gitpath.length-4) !== '.git') {
