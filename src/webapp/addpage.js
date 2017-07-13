@@ -46,7 +46,7 @@ function createAddPage (Lib, Node) {
 
 
   PageAdder.prototype.finalize = function () {
-    return Q.resolve('WebApp page created, edit body.html and call allex-webapp-compilepage in order to see results');
+    return Q.resolve('WebApp page created');
   };
 
   PageAdder.prototype.loadFrameworks = function (framework) {

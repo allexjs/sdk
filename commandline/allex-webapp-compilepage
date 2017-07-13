@@ -1,0 +1,11 @@
+#!/usr/bin/env node
+var lib = require('allexlib'),
+  BasicProgram = require('allex_basicprogramsdklib')(lib),
+  p = new BasicProgram(__dirname);
+
+p.program
+.usage('allex-webapp-compilepage [OPTIONS] [VARIANT] : Build your webapp page using this tool')
+.option('-v, --verbose', 'Do a verbose run');
+
+p.go();
+require('../src/webalizer/grunt_compiler.js')(p.program.args[0], p.program.verbose);

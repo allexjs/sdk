@@ -45,7 +45,6 @@ function createPBWebAppReader (Lib, Node) {
     this.components_dir = cwdbower;
     includes.push(cwdbower);
 
-    includes.push(Allex.paths.allexWebC());
     if (options.includes){
       if (Lib.isStrng(options.includes)) includes.push(options.includes);
       if (Lib.isArray(options.includes)) Array.prototype.push.apply(includes, options.includes);

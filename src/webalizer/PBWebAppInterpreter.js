@@ -50,7 +50,7 @@ function createPBWebAppInterpreter (Lib, Node) {
 
 
   PBWebAppInterpreter.prototype._go = function (grunt, params, defer) {
-    var linkpath;
+    var linkpath, testdir;
     Fs.removeSync(Path.resolve(this.cwd, '_generated'));
     if (!this.pbwr) return this.error('No reader set ...');
     if (!this.pbwr.isReady()) {
@@ -122,7 +122,10 @@ function createPBWebAppInterpreter (Lib, Node) {
       config.symlink.roots = { files: this.symlinkRoots()};
     }else{
       var docopya = ['echo "starting file copy ..."'];
-      docopya.push(this.map_to_cp_command({src: Path.resolve(this.cwd, 'css')+(Path.sep+'*'), dest: Path.resolve(this.cwd,'_generated','css')}));
+      testdir = Path.resolve(this.cwd, 'css');
+      if (!Fs.dirIsEmpty(testdir)) {
+        docopya.push(this.map_to_cp_command({src: testdir+(Path.sep+'*'), dest: Path.resolve(this.cwd,'_generated','css')}));
+      }
       Array.prototype.push.apply(docopya, this.symlinkComponents().map(this.map_to_cp_command.bind(this)));
       Array.prototype.push.apply(docopya, this.symlinkPublics().map(this.map_to_cp_command.bind(this)));
       Array.prototype.push.apply(docopya, this.symlinkPartials().map(this.map_to_cp_command.bind(this)));

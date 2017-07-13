@@ -7,10 +7,6 @@ var MANDATORY_DIRS = [
   ];
 
 
-function resolvePath (dirname, path) {
-  return Path.resolve(dirname, path);
-}
-
 function createWebAppInit (lib, Node) {
   'use strict';
   var Bower = require('allex_bowerhelperssdklib')(lib),
@@ -18,25 +14,35 @@ function createWebAppInit (lib, Node) {
     Fs = Node.Fs,
     Path = Node.Path;
 
+  function resolvePath (dirname, path) {
+    return Path.resolve(dirname, path);
+  }
+
+  function dirCreator (basedirname, dirname) {
+    Fs.ensureDirSync(resolvePath(basedirname, dirname));
+  }
+
   function init (dirname, bower, frameworks) {
 
     dirname = Path.resolve(process.cwd(), dirname);
+
+    //TODO: skip this one if force is given
     if (Fs.dirExists (dirname)){
-      throw new Error ('webapp already exists');
+      throw new Error ('webapp '+dirname+' already exists');
     }
 
     Fs.recreateDir(dirname);
 
     var sdk_common = Path.resolve (__dirname, '..', '..', 'templates', 'webapps'),
-      template_root = Path.resolve(__dirname, '..', '..', 'scaffolding', 'webalizer', 'web'),
-      framework_root = Path.resolve(__dirname, '..', '..', 'scaffolding', 'webapp', 'frameworks');
+      template_root = Path.resolve(__dirname, '..', '..', 'templates', 'webalizer', 'web'),
+      framework_root = Path.resolve(__dirname, '..', '..', 'templates', 'webapp', 'frameworks');
 
     Fs.copySync (Path.join (template_root, '*'), dirname);
     Fs.copySync (Path.join (template_root, '.bowerrc'), dirname);
     Fs.symlinkSync (Path.join (sdk_common, 'layouts'), Path.join (dirname, 'layouts'));
     Fs.symlinkSync (Path.join (sdk_common, 'includes'), Path.join (dirname, 'includes'));
 
-    Node.executeCommandSync('mkdir -p '+MANDATORY_DIRS.map(resolvePath.bind(null, dirname)).join (' '));
+    MANDATORY_DIRS.forEach(dirCreator.bind(null, dirname));
     process.chdir(dirname);
     Bower.commands.link();
 

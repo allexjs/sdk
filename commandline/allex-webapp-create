@@ -1,0 +1,29 @@
+#!/usr/bin/env node
+
+var DEFAULT_TEMPLATE = 'generic',
+  Lib = require('allexlib'),
+  Np = require('allex_basicprogramsdklib')(Lib),
+  p = new Np(__dirname),
+  aw = require('../src/webalizer')(Lib),
+  Node = require('allex_nodehelpersserverruntimelib')(Lib);
+
+p.program
+  .option('-b, --bower <string>', 'Provide a path to bower.json link instead of creating default one')
+  .option ('-d,--directory <string>', 'Directory path')
+  .option ('-f, --frameworks <string>', 'Frameworks to load')
+  .option ('-i, --index_frameworks <string>', 'Index framework set')
+  ;
+
+p.program.parse(process.argv);
+
+
+var frameworks = p.program.frameworks ? p.program.frameworks.split(',') : null,
+  page_command = 'allex-webapp-addpage index';
+
+if (p.program.index_frameworks) {
+  page_command+= (' -l '+p.program.index_frameworks);
+}
+
+aw.web_app(p.program.directory || process.cwd(), p.program.bower, frameworks);
+console.log(Node.executeCommandSync(page_command).toString());
+Node.executeCommand('allex-bower-install', null, {cwd:p.program.directory}, true);
