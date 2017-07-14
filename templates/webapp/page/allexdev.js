@@ -5,6 +5,7 @@ module.exports = {
   "js" : [
     "components/jquery/dist/jquery.js",
     "components/angular/angular.js",
+    "#ALLEX_BROWSER_CORE",
     "components/bootstrap/dist/js/bootstrap.js",
     "components/allex__web_webappcomponent/dist/initializator.js",
     "__PAGENAME__/configs.js",

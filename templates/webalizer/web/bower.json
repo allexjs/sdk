@@ -25,6 +25,7 @@
     "allex__web_angularcomponent": "allex_web_angularcomponent#~1",
     "angular": "1.5.8",
     "angular-sanitize": "1.5.8",
+    "allex_browsercore": "^1.0.3",
     "allexjs-angular-ui-grid" : "~3"
   },
   "devDependencies" : {},

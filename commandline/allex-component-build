@@ -1,7 +1,7 @@
 #!/usr/bin/env node
-var Toolbox = require('allex-toolbox'),
-  BasicProgram = Toolbox.node.BasicProgram,
-  Grunter = Toolbox.grunter;
+var lib = require('allexlib'),
+  BasicProgram = require('allex_basicprogramsdklib')(lib),
+  Grunter = require('allex_grunthelperssdklib')(lib);
 
 var p = new BasicProgram(__dirname);
 p.program.usage('Run this program in order to build a webapp component');
