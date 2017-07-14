@@ -1,6 +1,6 @@
 {
   "name": "allexsdk",
-  "version": "1.0.2",
+  "version": "1.0.3",
   "description": "AllexJS sdk",
   "main": "index.js",
   "scripts": {
