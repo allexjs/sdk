@@ -1,6 +1,6 @@
 {
   "name": "allexsdk",
-  "version": "1.0.3",
+  "version": "1.0.4",
   "description": "AllexJS sdk",
   "main": "index.js",
   "scripts": {
@@ -37,6 +37,7 @@
     "allex-ws-module-forget": "./commandline/allex-ws-module-forget",
     "allex-webapp-create": "./commandline/allex-webapp-create",
     "allex-webapp-build": "./commandline/allex-webapp-build",
+    "allex-webapp-deploy": "./commandline/allex-webapp-deploy",
     "allex-webapp-clear": "./commandline/allex-webapp-clear",
     "allex-component-build": "./commandline/allex-component-build",
     "allex-ws-project-create": "./commandline/allex-ws-project-create"

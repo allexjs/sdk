@@ -1,0 +1,28 @@
+#/bin/bash
+
+REPO=$1
+MESSAGE=$2
+DISTRO=$3
+
+rm -rf _tmp
+
+if [ -z $DISTRO ]
+  then
+    allex-webapp-build
+  else
+    allex-webapp-build -o $DISTRO
+  fi
+git clone $REPO _tmp
+rm -rf _tmp/*
+cd _generated
+for a in `find ./ -name '.git'`
+  do
+    rm -rf $a;
+  done
+cp -LRp ./* ../_tmp
+cd ../_tmp
+git add .
+git commit -m "$MESSAGE"
+git push
+cd ..
+rm -rf _tmp
