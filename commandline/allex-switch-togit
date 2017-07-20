@@ -29,13 +29,13 @@ function createCloneCommands (target) {
 }
 
 function onDecode (target, ddec) {
-  var d = q.defer();
-  if (ddec && Fs.dirExists(ddec.rtarget)){
+  var d = q.defer(), rdir, ctarget;
+  if (ddec && Fs.dirExists(ddec.rtarget) && ddec.gitclonestring){
     var pname = ddec.pname,
       group = ddec.group,
-      rtarget = ddec.rtarget,
-      rdir = Path.dirname(rtarget),
-      ctarget = Path.join(rdir, '..',  'allexjs_modules_dev', ddec.modulename);
+      rtarget = ddec.rtarget;
+    rdir = Path.dirname(rtarget);
+    ctarget = Path.join(rdir, '..',  'allexjs_modules_dev', ddec.modulename);
     Node.info('AllEx service detected, will clone it if possible ...');
     if (Fs.existsSync(Path.join(rtarget, '.git'))){
       d.reject('git repo, cowardly retreating');
@@ -45,7 +45,9 @@ function onDecode (target, ddec) {
     }
   } else {
     Node.info('AllEx service not detected, will try regular module');
-    if (Fs.dirExists(Path.join('node_modules',target))){
+    Node.info('is', target, 'in node_modules?', ddec, target);
+    target = ddec.modulename||target;
+    if (Fs.dirExists(Path.join('node_modules',target))) {
       if (Fs.existsSync(Path.join('node_modules',target, '.git'))) {
         d.reject('git repo, cowardly retreating');
       }else{
@@ -60,7 +62,9 @@ function onDecode (target, ddec) {
           }else if (!pck.repository.url){
             d.reject('No repo url');
           }else{
-            Node.executeCommand('rm -rf '+Path.join('node_modules',target)+' && git clone '+pck.repository.url.replace(/\.git$/, '')+' '+Path.join('node_modules', target), d, null, true);
+            ctarget = Path.join('allexjs_modules_dev', target);
+            console.log('pck.repository', pck.repository);
+            Node.executeCommand('rm -rf '+Path.join('node_modules',target)+' && git clone '+pck.repository.url.replace(/\.git$/, '')+' '+ctarget+' && cd '+ctarget+' & npm install && cd - && cd node_modules && ln -s ../allexjs_modules_dev/'+target, d, null, true);
           }
         }catch (e) {
           d.reject(e);
