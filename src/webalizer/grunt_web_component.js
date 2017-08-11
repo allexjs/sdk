@@ -144,7 +144,7 @@ module.exports = {
   grunt:do_grunt,
   GruntTasks : [
     'grunt-contrib-concat',
-    'grunt-contrib-uglify',
+    'hers-grunt-contrib-uglify',
     'grunt-contrib-jshint',
     'grunt-browserify'
   ],

@@ -58,7 +58,7 @@ module.exports = {
     'grunt-file-exists',
     'grunt-template',
     'grunt-contrib-concat',
-    'grunt-contrib-uglify', 
+    'hers-grunt-contrib-uglify', 
     'grunt-exec'
   ],
   tasklist: ['default']
