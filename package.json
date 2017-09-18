@@ -1,6 +1,6 @@
 {
   "name": "allexsdk",
-  "version": "1.0.6",
+  "version": "1.0.7",
   "description": "AllexJS sdk",
   "main": "index.js",
   "scripts": {
@@ -51,7 +51,8 @@
     "allex_grunthelperssdklib": "1.x",
     "allex_nodehelpersserverruntimelib": "1.x",
     "allex_npminstallserverruntimelib": "1.x",
-    "allex_protoboardhelperssdklib": "1.x"
+    "allex_protoboardhelperssdklib": "1.x",
+    "js-beautify": "1.6.14"
   },
   "keywords": [
     "ecosystem:AllexJS",
