@@ -64,7 +64,7 @@ function onDecode (target, ddec) {
           }else{
             ctarget = Path.join('allexjs_modules_dev', target);
             console.log('pck.repository', pck.repository);
-            Node.executeCommand('rm -rf '+Path.join('node_modules',target)+' && git clone '+pck.repository.url.replace(/\.git$/, '')+' '+ctarget+' && cd '+ctarget+' & npm install && cd - && cd node_modules && ln -s ../allexjs_modules_dev/'+target, d, null, true);
+            Node.executeCommand('rm -rf '+Path.join('node_modules',target)+' && git clone '+pck.repository.url.replace(/\.git$/, '')+' '+ctarget+' && cd '+ctarget+' && npm install && cd - && cd node_modules && ln -s ../allexjs_modules_dev/'+target, d, null, true);
           }
         }catch (e) {
           d.reject(e);
