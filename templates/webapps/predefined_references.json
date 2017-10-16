@@ -52,8 +52,8 @@
       "allex:user",
       "allex:hotel",
       "allex:usersessions",
-      "allex:leveldb:lib",
       "allex:buffer:lib",
+      "allex:leveldb:lib",
       "allex:leveldb",
       "allex:userresolver",
       "allex:genericuserdata"

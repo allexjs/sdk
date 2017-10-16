@@ -31,14 +31,14 @@ function do_grunt (grunt, params, defer) {
 
   var dir = params.pb_dir ? params.pb_dir : process.cwd();
   var jobs = [ 
-    Node.executeCommand.bind(Node, 'rm -rf _generated _tmp', null, {cwd : dir}, true),
+    Node.Fs.remove.bind(Node.Fs, Node.Path.join(dir, '_generated_tmp')), 
     Node.executeCommand.bind(Node, params.devel ? 'allex-bower-install' : 'bower install', null, {cwd:dir}, true),
     buildWebapp.bind(null, params.devel, params.rebuild, params.distro, params.pb_dir),
     buildGrunt.bind(null, grunt, params, defer)
   ];
 
   if (params.clean){
-    jobs.unshift (Node.executeCommand.bind(Node, 'allex-webapp-clear', null, {cwd:true}, true));
+    jobs.unshift (Node.executeCommand.bind(Node, 'allex-webapp-clear', null, {cwd:dir}, true));
   }
 
   var job = new AllexQ.PromiseExecutorJob(jobs);
