@@ -40,8 +40,7 @@ function onDecode (target, ddec) {
     if (Fs.existsSync(Path.join(rtarget, '.git'))){
       d.reject('git repo, cowardly retreating');
     }else{
-      //console.log('rm -rf '+rtarget+' && git clone '+ddec.gitclonestring+' '+ctarget+' && cd '+ctarget+' && npm install && cd - && cd '+rdir+' && ln -s '+ctarget, ddec);
-      Node.executeCommand('rm -rf '+rtarget+' && git clone '+ddec.gitclonestring+' '+ctarget+' && cd '+ctarget+' && npm install && cd - && cd '+rdir+' && ln -s '+Path.relative(rdir, ctarget), d, null, true);
+      Node.executeCommand('rm -rf '+rtarget+' && git clone '+ddec.gitclonestring+' '+ctarget+' && cd '+ctarget+' && npm install --no-save --no-package-lock && cd - && cd '+rdir+' && ln -s '+Path.relative(rdir, ctarget), d, null, true);
     }
   } else {
     Node.info('AllEx service not detected, will try regular module');
@@ -64,7 +63,7 @@ function onDecode (target, ddec) {
           }else{
             ctarget = Path.join('allexjs_modules_dev', target);
             console.log('pck.repository', pck.repository);
-            Node.executeCommand('rm -rf '+Path.join('node_modules',target)+' && git clone '+pck.repository.url.replace(/\.git$/, '')+' '+ctarget+' && cd '+ctarget+' && npm install && cd - && cd node_modules && ln -s ../allexjs_modules_dev/'+target, d, null, true);
+            Node.executeCommand('rm -rf '+Path.join('node_modules',target)+' && git clone '+pck.repository.url.replace(/\.git$/, '')+' '+ctarget+' && cd '+ctarget+' && npm install --no-save --no-package-lock && cd - && cd node_modules && ln -s ../allexjs_modules_dev/'+target, d, null, true);
           }
         }catch (e) {
           d.reject(e);
