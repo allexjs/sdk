@@ -275,8 +275,7 @@ function createPBWebAppReader (Lib, Node) {
     return Q(true);
   };
 
-  var COMPONENTS_START = /^components\//,
-    ALLEX_START = /^allex:/;
+  var COMPONENTS_START = /^components\//;
 
   function replaceComponentSource (name, src) {
     return src.replace(Path.join('components', name)+Path.sep, '');
@@ -342,11 +341,7 @@ function createPBWebAppReader (Lib, Node) {
 
       return Q(ret);
     }else{
-      if (record.match(ALLEX_START)) {
-        return this.getAllexSrcPath(record).then(this.onSrcPathForPrepareAsset.bind(this, root_if_no_component, ret));
-      }else{
-        return this.onSrcPathForPrepareAsset(root_if_no_component, ret, record);
-      }
+      return this.testForAllex(record).then(this.onTestedForAllex.bind(this, root_if_no_component, record, ret));
     }
   };
 
@@ -376,19 +371,19 @@ function createPBWebAppReader (Lib, Node) {
     }
   }
 
-  PBWebAppReader.prototype.getAllexSrcPath = function (record) {
-    //ok get allex identifier rest of it is path ...
-    var spl1 = record.split('/'),
-      component = Lib.moduleRecognition(spl1.shift());
-    return component.then(onRecognized.bind(null, spl1));
+  PBWebAppReader.prototype.testForAllex = function (record) {
+    var spl1 = record.split('/');
+    return Lib.moduleRecognition(spl1.shift()).then(onRecognizedForTestForAllex.bind(null, spl1));
   };
 
-  function onRecognized (spl1, component) {
+  function onRecognizedForTestForAllex (spl1, component) {
     if (!component) return Q(null);
-    if (Lib.isString(component)) {
-      return Q('components/'+component+'/'+(spl1.length ? spl1.join('/') : 'dist/browserified.js'));
-    }
+    if (Lib.isString(component)) return Q(null);
     return Q('components/'+component.modulename+'/'+(spl1.length ? spl1.join('/') : 'dist/browserified.js'));
+  }
+
+  PBWebAppReader.prototype.onTestedForAllex = function (root_if_no_component, record, ret, testresult) {
+    return this.onSrcPathForPrepareAsset(root_if_no_component, ret, testresult ? testresult : record);
   };
 
   PBWebAppReader.prototype._requireComponent = function (name) {
