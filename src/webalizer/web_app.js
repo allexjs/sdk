@@ -62,6 +62,11 @@ function createWebAppInit (lib, Node) {
       if (pb.public_dirs.indexOf('frameworks') < 0) pb.public_dirs.push ('frameworks');
       Fs.writeJSONSync(Path.resolve(dirname, 'protoboard.json'),pb);
     }
+    Fs.writeJSONSync(Path.resolve(dirname, '.allexns.json'),[
+      {"username": "allex", "namespace": null, "group": "services", "type": "git", "user": "git", "server": "github.com", "repogroup": "allex-services"},
+      {"username": "allex", "namespace": null, "group": "libs", "type": "git", "user": "git", "server": "github.com", "repogroup": "allex-libs"},
+      {"username": "allex", "namespace": null, "group": "webcomponents", "type": "git", "user": "git", "server": "github.com", "repogroup": "allex-web-components"}
+    ]);
   }
 
   return init;
