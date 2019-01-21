@@ -32,7 +32,8 @@ function do_grunt (grunt, params, defer) {
   var dir = params.pb_dir ? params.pb_dir : process.cwd();
   var jobs = [ 
     Node.Fs.remove.bind(Node.Fs, Node.Path.join(dir, '_generated_tmp')), 
-    Node.executeCommand.bind(Node, params.devel ? 'allex-bower-install' : 'bower install', null, {cwd:dir}, true),
+    //Node.executeCommand.bind(Node, params.devel ? 'allex-bower-install' : 'bower install', null, {cwd:dir}, true),
+    Node.executeCommand.bind(Node, 'npm install --no-package-lock --no-save', null, {cwd:dir}, true),
     buildWebapp.bind(null, params.devel, params.rebuild, params.distro, params.pb_dir),
     buildGrunt.bind(null, grunt, params, defer)
   ];

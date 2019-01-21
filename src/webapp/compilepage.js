@@ -2,7 +2,6 @@
 var Lib = require('allexlib'),
   Node = require('allex_nodehelpersserverruntimelib')(Lib),
   Path = Node.Path,
-  Bower = require('allex_bowerhelperssdklib')(Lib),
   Fs = Node.Fs,
   Allex = require('allex_allexjshelperssdklib')(Lib),
   Q = Lib.q;

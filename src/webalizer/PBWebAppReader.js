@@ -3,8 +3,7 @@ var REFERENCES = require('../../templates/webapps/predefined_references.json');
 function createPBWebAppReader (Lib, Node) {
   'use strict';
 
-  var Bower = require('allex_bowerhelperssdklib')(Lib),
-    Fs = Node.Fs,
+  var Fs = Node.Fs,
     Allex = require('allex_allexjshelperssdklib')(Lib),
     Path = Node.Path,
     Q = Lib.q,
@@ -26,27 +25,16 @@ function createPBWebAppReader (Lib, Node) {
     if (!this.pb_data.protoboard && this.pb_data.protoboard.role !== 'web_app') return this.error('Invalid protoboard content at '+this.cwd);
 
     this.requires_connection = this.pb_data.protoboard.requires_connection;
-    this.devel = ('devel' in  options) ? options.devel : true;
+    this.devel = ('devel' in options) ? options.devel : true;
     this.distro = ('distro' in options) ? options.distro : null;
     var includes = [];
 
-    if (this.devel) {
-      includes.push(Bower.native.config.storage.links);
-    }
-
-    var cwdbower = Path.resolve(dir,'bower_components');
-    var cwdbower_rc = Path.resolve(dir, '.bowerrc');
-
-    if (Fs.fileExists(cwdbower_rc)) {
-      var td = Fs.readFieldFromJSONFile(cwdbower_rc, 'directory');
-      if (td) cwdbower = td;
-    }
-
-    this.components_dir = cwdbower;
-    includes.push(cwdbower);
+    this.components_dir = null;
+    this.tryBowerForIncludes(includes, dir);
+    this.tryNpmForIncludes(includes, dir);
 
     if (options.includes){
-      if (Lib.isStrng(options.includes)) includes.push(options.includes);
+      if (Lib.isString(options.includes)) includes.push(options.includes);
       if (Lib.isArray(options.includes)) Array.prototype.push.apply(includes, options.includes);
     }
     this.includes = includes.map(transformIncludePath.bind(null, this, this.cwd));
@@ -90,6 +78,36 @@ function createPBWebAppReader (Lib, Node) {
     this.cwd = null;
     this.defer = null;
     this.distro = null;
+  };
+
+  PBWebAppReader.prototype.tryBowerForIncludes = function (includes, dir) {
+    var cwdbower = Path.resolve(dir,'bower_components');
+    var cwdbower_rc = Path.resolve(dir, '.bowerrc');
+
+    if (Fs.fileExists(cwdbower_rc)) {
+      var td = Fs.readFieldFromJSONFile(cwdbower_rc, 'directory');
+      if (td) cwdbower = td;
+    }
+
+    if (cwdbower) {
+      this.components_dir = cwdbower;
+      includes.push(cwdbower);
+    }
+  };
+
+  PBWebAppReader.prototype.tryNpmForIncludes = function (includes, dir) {
+    //TODO: try .npmrc 
+    var pjpath = Path.resolve(dir, 'package.json'),
+      cwdnm = Path.resolve(dir,'node_modules');
+
+    if (!Fs.fileExists(pjpath)) {
+      return;
+    }
+
+    if (cwdnm) {
+      this.components_dir = cwdnm; //? several components_dir?
+      includes.push(cwdnm);
+    }
   };
 
   PBWebAppReader.prototype.getSafeDistro = function () {
@@ -276,15 +294,28 @@ function createPBWebAppReader (Lib, Node) {
   };
 
   var COMPONENTS_START = /^components\//,
-    ALLEX_START = /^allex:/;
+    AVAILABLE_PREFIXES = [/^components\//,/^node_modules\//];
 
   function replaceComponentSource (name, src) {
     return src.replace(Path.join('components', name)+Path.sep, '');
   };
 
+  function matchAvailablePrefixes(path){
+    var ret = {match : false};
+    if (!Lib.isString(path)) return ret;
+    for (var i=0; i<AVAILABLE_PREFIXES.length; i++){
+      if (path.match(AVAILABLE_PREFIXES[i])){
+        ret.match = true;
+        break;
+      }
+    }
+    return ret;
+  }
+
   function extractComponentName (path) {
     var ret = null, temp = null;
-    if (path.match(COMPONENTS_START)) {
+    if (matchAvailablePrefixes(path).match === true) {
+    //if (path.match(COMPONENTS_START)) {
       temp = path.split('/');
       ret = temp[1];
       if (!ret) return this.error('Components record must have component name '+path);
@@ -339,25 +370,30 @@ function createPBWebAppReader (Lib, Node) {
       ret.dest_path = Path.join(root_if_no_component, record.basepath, alternative);
       ret.src_path = this.devel ? Path.join(root_if_no_component, ret.dest_path) : absolutizePath (this.cwd, ret.dest_path);
       ret.conditional = record.conditional;
+      //console.log('_prepareAsset string', ret);
 
       return Q(ret);
     }else{
+      return this.testForAllex(record).then(this.onTestedForAllex.bind(this, root_if_no_component, record, ret));
+      /*
       if (record.match(ALLEX_START)) {
         return this.getAllexSrcPath(record).then(this.onSrcPathForPrepareAsset.bind(this, root_if_no_component, ret));
       }else{
         return this.onSrcPathForPrepareAsset(root_if_no_component, ret, record);
       }
+      */
     }
   };
 
   PBWebAppReader.prototype.onSrcPathForPrepareAsset = function (root_if_no_component, ret, src_path) {
     ret.src_path = src_path;
-    ret.dest_path = ret.src_path;
+    ret.dest_path = ret.src_path.replace('node_modules','components');
     ret.component = extractComponentName(ret.src_path);
 
     if (ret.component) {
       this._requireComponent(ret.component);
       ret.src_path = ret.src_path.replace(Path.join('components', ret.component)+Path.sep,'');
+      ret.src_path = ret.src_path.replace(Path.join('node_modules', ret.component)+Path.sep,'');
     }else{
       var is_public = Lib.traverseConditionally (this.pb_data.public_dirs,isPublicAsset.bind(null, ret.src_path));
 
@@ -376,19 +412,19 @@ function createPBWebAppReader (Lib, Node) {
     }
   }
 
-  PBWebAppReader.prototype.getAllexSrcPath = function (record) {
-    //ok get allex identifier rest of it is path ...
-    var spl1 = record.split('/'),
-      component = Lib.moduleRecognition(spl1.shift());
-    return component.then(onRecognized.bind(null, spl1));
+  PBWebAppReader.prototype.testForAllex = function (record) {                                            
+    var spl1 = record.split('/');
+    return Lib.moduleRecognition(spl1.shift()).then(onRecognizedForTestForAllex.bind(null, spl1));       
   };
 
-  function onRecognized (spl1, component) {
+  function onRecognizedForTestForAllex (spl1, component) {
     if (!component) return Q(null);
-    if (Lib.isString(component)) {
-      return Q('components/'+component+'/'+(spl1.length ? spl1.join('/') : 'dist/browserified.js'));
-    }
+    if (Lib.isString(component)) return Q(null);
     return Q('components/'+component.modulename+'/'+(spl1.length ? spl1.join('/') : 'dist/browserified.js'));
+  }
+
+  PBWebAppReader.prototype.onTestedForAllex = function (root_if_no_component, record, ret, testresult) {
+    return this.onSrcPathForPrepareAsset(root_if_no_component, ret, testresult ? testresult : record);
   };
 
   PBWebAppReader.prototype._requireComponent = function (name) {
@@ -423,22 +459,18 @@ function createPBWebAppReader (Lib, Node) {
     }
 
     Lib.traverseConditionally (this.includes, this._searchComponents.bind(this));
-    return Q.all(this.getUnresolvedComponents().map (this.resolveAllexComponents.bind(this)));
+    return Q.all(this.getUnresolvedComponents().map (this.resolveAllexComponent.bind(this)));
   };
 
-  PBWebAppReader.prototype.resolveAllexComponents = function (name) {
-    var p = Allex.paths.allexServiceWebC(name); ///global one ...,
-    if (Fs.dirExists(p)) {
-      this.storeComponent(name, p);
-      return Q.resolve(true);
-    }
-
+  PBWebAppReader.prototype.resolveAllexComponent = function (name) {
     return Allex.paths.allexServiceWebC(name, this.cwd).then (this._checkAllexComponentExists.bind(this, name));
   };
 
   PBWebAppReader.prototype._checkAllexComponentExists = function (name, p) {
     if (Fs.dirExists(p)) {
       this.storeComponent(name, p);
+    }else{
+      this.storeComponent(name, Path.join(this.cwd,'node_modules',name));
     }
     return Q.resolve (true);
   };
@@ -447,15 +479,16 @@ function createPBWebAppReader (Lib, Node) {
     var unresolved = this.getUnresolvedComponents().length,
       bower_fp = Path.resolve(this.cwd, dir, 'bower.json'),
       pb_fp = Path.resolve(this.cwd, dir, 'protoboard.json');
-
     if (Fs.fileExists(pb_fp) && Fs.fileExists(bower_fp)){
       ///this is exact component dir ...
+      //console.log('this is exact component dir ...');
       var name = Fs.readFieldFromJSONFile(bower_fp, 'name');
       if (!this.components[name]){
         this.storeComponent(name, Path.resolve(this.cwd, dir));
       }
       return;
     }else{
+      //console.log(Path.resolve(this.cwd, dir), 'is NOT exact component dir ...');
       var resolved = [];
       if (!Fs.dirExists(dir)) return;
       Fs.readdirSync(dir).forEach(isComponentSuitable.bind(null, this, dir));
@@ -465,17 +498,26 @@ function createPBWebAppReader (Lib, Node) {
   };
 
   PBWebAppReader.prototype.storeComponent = function (name, path) {
+    var ret, pbf, pb, webc;
     if (this.components[name]) throw new Error('Already loaded component '+name);
-    var ret = {
+    if (!Fs.dirExists(path) ) {
+      return;
+    }
+    ret = {
       name: name,
       path:path,
       public_dirs: null
     };
-    if (!Fs.dirExists(path) ) throw new Error('Unable to locate directory: '+path);
     this.components[name] = ret;
-    var pbf = Path.join(path, 'protoboard.json');
-    if (!Fs.fileExists(pbf)) return; //nothing to be done
-    var pb = Fs.readFieldFromJSONFile(pbf);
+    webc = Path.join(path, 'web_component');
+    if (Fs.dirExists(webc)) {
+      ret.path = webc;
+    }
+    pbf = Path.join(path, 'protoboard.json');
+    if (!Fs.fileExists(pbf)) {
+      return; //nothing to be done
+    }
+    pb = Fs.readFieldFromJSONFile(pbf);
     ret.public_dirs = pb && pb.protoboard && pb.protoboard.public_dirs ? pb.protoboard.public_dirs : null;
     if (pb.partials) {
       Lib.traverse(pb.partials, expandPBPartialsRecordWithComponentPartials.bind(null, this.pb_data.partials, name));
@@ -493,8 +535,13 @@ function createPBWebAppReader (Lib, Node) {
     var fp = absolutizePath(root, dir);
     if (!Fs.dirExists(fp)) return;
     var name = Path.basename(fp), 
-      bower = Path.resolve(fp, 'bower.json');
-    if (Fs.fileExists(bower)) name = Fs.readFieldFromJSONFile(bower, 'name');
+      bower = Path.resolve(fp, 'bower.json'),
+      pkgjsn = Path.resolve(fp, 'package.json');
+    if (Fs.fileExists(bower)) {
+      name = Fs.readFieldFromJSONFile(bower, 'name');
+    } else if (Fs.fileExists(pkgjsn)) {
+      name = Fs.readFieldFromJSONFile(pkgjsn, 'name');
+    }
 
     if (pbw.components[name]) return;
     if (pbw.getUnresolvedComponents().indexOf(name) < 0) return;
@@ -516,7 +563,7 @@ function createPBWebAppReader (Lib, Node) {
 
   PBWebAppReader.prototype.resolveAssets = function () {
     var l  = this.getUnresolvedComponents().length;
-    if (l) return this.error('Unable to resolve assets untill all components are ready ...');
+    if (l) return this.error('Unable to resolve assets until all components are ready ...');
     Lib.traverse(this.pages, this._resolvePage.bind(this));
     this.partials.forEach(this._resolveAsset.bind(this));
   };
@@ -531,6 +578,7 @@ function createPBWebAppReader (Lib, Node) {
     if (rec.resolved || !rec.component) {
       return; ///nothing to be done: either resolved eithec component igonrant ...
     }
+    //console.log('--- DAVAJ',this.components,rec);
     var component = this.components[rec.component];
     if (!component) return; /// component not resolved yet ...
 

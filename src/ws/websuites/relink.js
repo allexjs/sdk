@@ -14,7 +14,7 @@ function createRelink (Lib, Node) {
     WebAppTools = require('../../webalizer')(Lib).WebAppTools;
 
   function doRelink (project, suitename, webapp){
-    if ('./' === webapp) return; ///TODO: anomaly to be resolved
+    //if ('./' === webapp) return; ///TODO: anomaly to be resolved
 
     var app = Path.resolve(ALLEX_WORKSPACE_DIR, 'projects', project, 'websolutions', suitename, webapp, '_generated'),
       linkdirname = Path.resolve(ALLEX_WORKSPACE_DIR, '.webapps', project, suitename),
@@ -23,7 +23,9 @@ function createRelink (Lib, Node) {
     if (Fs.existsSync(link)) return;
 
     try {
-      Fs.ensureDirSync(linkdirname);
+      if (linkdirname !== link) {
+        Fs.ensureDirSync(linkdirname);
+      }
       Fs.symlinkSync (app, link);
     }catch (ignore) {
     }

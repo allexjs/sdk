@@ -20,7 +20,7 @@ function createModuleQueue (lib, Node) {
 
   ModulesQueue.prototype.install = function () {
     var unresolved = this.reader.getUnresolvedComponents();
-
+    console.log('---------------------------------------------',unresolved);
     if (!unresolved.length) return Q.resolve(true); //nothing to be done ...
     return (new AllexQ.PromiseExecutorJob(unresolved.map (this._prepare_queue.bind(this)))).go();
   };

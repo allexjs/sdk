@@ -7,7 +7,6 @@ function createPBWebAppInterpreter (Lib, Node) {
   'use strict';
 
   var Node = require('allex_nodehelpersserverruntimelib')(Lib),
-    Bower = require('allex_bowerhelperssdklib')(Lib),
     Fs = Node.Fs,
     Path = Node.Path,
     WEBAPP_TEMPLATES = Path.resolve (__dirname, '..', '..', 'templates', 'webapps');

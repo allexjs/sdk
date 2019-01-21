@@ -44,7 +44,7 @@ function createWebAppInit (lib, Node) {
 
     MANDATORY_DIRS.forEach(dirCreator.bind(null, dirname));
     process.chdir(dirname);
-    Bower.commands.link();
+    //Bower.commands.link();
 
 
     var framework_path = null;

@@ -1,45 +1,44 @@
 {
   "#BASIC_CSS": [
       {
-        "p": "components/bootstrap/dist/css",
+        "p": "node_modules/bootstrap/dist/css",
         "d": "bootstrap.css",
         "m": "bootstrap.min.css"
       },
-      "components/components-font-awesome/css/font-awesome.css",
-      "components/angular-ui-grid/ui-grid.css",
+      "node_modules/components-font-awesome/css/font-awesome.css",
+      "node_modules/angular-ui-grid/ui-grid.css",
       "generic.css",
       "overrides.css"
   ],
   "#WEBFONTLOADER": [
-    "components/webfontloader/webfontloader.js"
+    "node_modules/webfontloader/webfontloader.js"
   ],
   "#REQUIREMENTS" : [
       {
-        "p": "components/jquery/dist",
+        "p": "node_modules/jquery/dist",
         "d": "jquery.js",
         "m": "jquery.min.js"
       },
       {
-        "p": "components/angular",
+        "p": "node_modules/angular",
         "d": "angular.js",
         "m": "angular.min.js"
       },
       {
-        "p" : "components/angular-animate",
+        "p" : "node_modules/angular-animate",
         "d" : "angular-animate.js",
         "m" : "angular-animate.min.js"
       },
       {
-        "p": "components/bootstrap/dist/js/",
+        "p": "node_modules/bootstrap/dist/js/",
         "d": "bootstrap.js",
         "m": "bootstrap.min.js"
       },
       {
-        "p": "components/angular-bootstrap",
+        "p": "node_modules/angular-bootstrap",
         "d": "ui-bootstrap-tpls.js",
         "m": "ui-bootstrap-tpls.min.js"
-      },
-      "components/angular-ui-grid/ui-grid.js"
+      }
    ],
    "#ALLEXBASIC": [
       "allex:http",
@@ -59,8 +58,8 @@
       "allex:genericuserdata"
    ],
    "#ALLEX_BROWSER_CORE": [
-     "components/allex_browsercore/dist/browsercore.js",
-     "components/allexns/ns.js"
+     "node_modules/allex_browsercore/dist/browsercore.js",
+     "node_modules/allexns/ns.js"
    ],
    "#VEKTR" : [
       "components/vektr/dist/bridge.allex.js",
