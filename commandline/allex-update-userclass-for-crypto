@@ -1,0 +1,50 @@
+#! /bin/bash
+
+if [ -f "websinkmapcreator.js" ]
+then
+  echo "websinkmapcreator.js already exists, nothing for me to do here";
+  exit 1
+fi
+
+mv sinkmapcreator.js websinkmapcreator.js
+echo "sinkmapcreator.js moved to websinkmapcreator.js"
+echo
+
+wsmcontents=$(cat <<WSM
+function sinkMapCreator(execlib, ParentSinkMap) {
+  'use strict';
+  var sinkmap = require('./websinkmapcreator')(execlib, ParentSinkMap);
+  sinkmap.add('crypto', ParentSinkMap.get('crypto'));
+          
+  return sinkmap;
+}
+
+module.exports = sinkMapCreator;
+WSM
+)
+
+browserifycontents=$(cat browserify.js)
+
+echo "$wsmcontents" > sinkmapcreator.js
+echo "sinkmapcreator.js created that will"
+echo "    1. require('websinkmapcreator.js')"
+echo "    2. add the 'crypto' class as the copy of the ParentSinkMap's 'crypto' class"
+echo
+
+browserifycontents=$(echo $browserifycontents | sed "s@\bsinkmapcreator\b@websinkmapcreator@g")
+
+echo "$browserifycontents" > browserify.js
+echo "browserify.js updated to use websinkmapcreator.js instead of sinkmapcreator.js"
+echo
+
+echo "Don't forget to put"
+echo "'crypto': parentFactory.get('crypto')"
+echo "in servicecreator.js' factoryCreator"
+echo
+
+cd web_component
+allex-component-build
+cd -
+
+echo "Don't forget to bump up the package.json version!"
+echo

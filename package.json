@@ -1,6 +1,6 @@
 {
   "name": "allexsdk",
-  "version": "1.0.12",
+  "version": "1.0.13",
   "description": "AllexJS sdk",
   "main": "index.js",
   "scripts": {
@@ -40,7 +40,8 @@
     "allex-webapp-deploy": "./commandline/allex-webapp-deploy",
     "allex-webapp-clear": "./commandline/allex-webapp-clear",
     "allex-component-build": "./commandline/allex-component-build",
-    "allex-ws-project-create": "./commandline/allex-ws-project-create"
+    "allex-ws-project-create": "./commandline/allex-ws-project-create",
+    "allex-update-userclass-for-crypto": "./commandline/allex-update-userclass-for-crypto"
   },
   "dependencies": {
     "allex_servicescaffoldingsdklib": "1.x",
