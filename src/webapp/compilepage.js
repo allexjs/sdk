@@ -28,7 +28,7 @@ function go(cwd, variant) {
     allex_dev_path = Path.resolve(pb_dir, 'allexdev', page_name+'.js'),
     local_scripts_file = Path.resolve(cwd,'./scripts.js'),
     local_css_file = Path.resolve(cwd,'./csslinks.js'),
-    local_post_scripts_file = Path.resolve(cwd, 'post_scripts.js');
+    local_post_scripts_file = Path.resolve(cwd, './post_scripts.js');
 
 
   var body_file = Path.resolve(cwd, variant ? 'body_'+variant+'.html': 'body.html'),
@@ -47,12 +47,14 @@ function go(cwd, variant) {
     throw new Error('Unable to find allexdev file '+allex_dev_path);
   }
 
-  var allex_data = require(allex_dev_path),
+  var allex_data = Fs.fileExists(allex_dev_path) ? require(allex_dev_path) : {},
     lscripts = Fs.fileExists(local_scripts_file) ? require(local_scripts_file) : [],
     lcss = Fs.fileExists(local_css_file) ? require(local_css_file) : [],
     pb_data = Fs.readJSONSync(pb_file),
     lpscripts = Fs.fileExists(local_post_scripts_file) ? require (local_post_scripts_file) : [];
 
+  if (!allex_data.js) allex_data.js = [];
+  if (!allex_data.css) allex_data.css = [];
   if (!pb_data.pages) pb_data.pages = {};
   if (!pb_data.pages[page_name]) pb_data.pages[page_name] = {};
 

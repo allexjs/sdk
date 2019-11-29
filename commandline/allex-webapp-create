@@ -8,7 +8,6 @@ var DEFAULT_TEMPLATE = 'generic',
   Node = require('allex_nodehelpersserverruntimelib')(Lib);
 
 p.program
-  .option('-b, --bower <string>', 'Provide a path to bower.json link instead of creating default one')
   .option ('-d,--directory <string>', 'Directory path')
   .option ('-f, --frameworks <string>', 'Frameworks to load')
   .option ('-i, --index_frameworks <string>', 'Index framework set')
@@ -24,6 +23,6 @@ if (p.program.index_frameworks) {
   page_command+= (' -l '+p.program.index_frameworks);
 }
 
-aw.web_app(p.program.directory || process.cwd(), p.program.bower, frameworks);
+aw.web_app(p.program.directory || process.cwd(), frameworks);
 console.log(Node.executeCommandSync(page_command).toString());
-Node.executeCommand('allex-bower-install', null, {cwd:p.program.directory}, true);
+//Node.executeCommand('allex-bower-install', null, {cwd:p.program.directory}, true);

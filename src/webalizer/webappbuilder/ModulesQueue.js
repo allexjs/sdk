@@ -43,7 +43,7 @@ function createModuleQueue (lib, Node) {
 
   ModulesQueue.prototype._onDone = function (d, module_name, resp) {
     if (resp) {
-      this.reader.storeComponent(module_name, Path.resolve(this.reader.cwd, 'node_modules', module_name, 'web_component'))
+      this.reader.storeComponent(module_name, Path.resolve(this.reader.cwd, 'node_modules', module_name))
       d.resolve(module_name);
     }else{
       d.reject(module_name);

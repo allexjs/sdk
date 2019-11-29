@@ -191,7 +191,7 @@ function createPBWebAppReader (Lib, Node) {
     if (stat.isDirectory()) content.dirs.push(item);
   };
 
-  PBWebAppReader.prototype._prepare_partials = function (record, root){
+  PBWebAppReader.prototype._finalize_partials = function (record, root){
     var component_name = extractComponentName(root);
     if (component_name) this._requireComponent(component_name);
     if (Lib.isArray(record)) {
@@ -204,8 +204,8 @@ function createPBWebAppReader (Lib, Node) {
     var ret = {
       component: component_name,
       resolved: false,
-      src_path: component_name ? replaceComponentSource(component_name, src) : Path.resolve(this.cwd, src),
-      dest_path:component_name ? src.replace(COMPONENTS_START, 'partials/') : Path.resolve(this.cwd, '_generated', src)
+      src_path: component_name ? replaceComponentsDirPath(component_name, src) : Path.resolve(this.cwd, src),
+      dest_path:component_name ? replaceComponentsDirPath(component_name, src, ['partials'], -1) : Path.resolve(this.cwd, '_generated', src)
     };
     return ret;
   };
@@ -258,6 +258,7 @@ function createPBWebAppReader (Lib, Node) {
 
   PBWebAppReader.prototype.onJSCSS = function (p_data, name, jscss) {
     var js = jscss[0], css = jscss[1];
+    console.log('onJSCSS', js, css);
     if (!Lib.isArray(js)) {
       console.error('no js', jscss);
       process.exit(1);
@@ -293,11 +294,18 @@ function createPBWebAppReader (Lib, Node) {
     return Q(true);
   };
 
-  var COMPONENTS_START = /^components\//,
-    AVAILABLE_PREFIXES = [/^components\//,/^node_modules\//];
+  var AVAILABLE_PREFIXES = [/^components\//,/^node_modules\//];
 
-  function replaceComponentSource (name, src) {
-    return src.replace(Path.join('components', name)+Path.sep, '');
+  function replaceComponentsDirPath (name, src, replacement, startfrom) {
+    var compdirarry = src.split(Path.sep),
+      nameind = compdirarry.indexOf(name),
+      retarry = Lib.isArray(replacement) ? replacement : [];
+    startfrom = startfrom || 0;
+    if (nameind<0) {
+      return src;
+    }
+    Array.prototype.push.apply(retarry, compdirarry.slice(nameind+1+startfrom));
+    return retarry.join(Path.sep);
   };
 
   function matchAvailablePrefixes(path){
@@ -315,7 +323,6 @@ function createPBWebAppReader (Lib, Node) {
   function extractComponentName (path) {
     var ret = null, temp = null;
     if (matchAvailablePrefixes(path).match === true) {
-    //if (path.match(COMPONENTS_START)) {
       temp = path.split('/');
       ret = temp[1];
       if (!ret) return this.error('Components record must have component name '+path);
@@ -498,7 +505,7 @@ function createPBWebAppReader (Lib, Node) {
   };
 
   PBWebAppReader.prototype.storeComponent = function (name, path) {
-    var ret, pbf, pb, webc;
+    var ret, pbf, pb, webc, partialspath;
     if (this.components[name]) throw new Error('Already loaded component '+name);
     if (!Fs.dirExists(path) ) {
       return;
@@ -512,21 +519,23 @@ function createPBWebAppReader (Lib, Node) {
     webc = Path.join(path, 'web_component');
     if (Fs.dirExists(webc)) {
       ret.path = webc;
+      partialspath = '..';
     }
-    pbf = Path.join(path, 'protoboard.json');
+    pbf = Path.join(ret.path, 'protoboard.json');
     if (!Fs.fileExists(pbf)) {
       return; //nothing to be done
     }
     pb = Fs.readFieldFromJSONFile(pbf);
     ret.public_dirs = pb && pb.protoboard && pb.protoboard.public_dirs ? pb.protoboard.public_dirs : null;
     if (pb.partials) {
-      Lib.traverse(pb.partials, expandPBPartialsRecordWithComponentPartials.bind(null, this.pb_data.partials, name));
+      //console.log('will expandPBPartialsRecordWithComponentPartials from', path, name, 'at', ret.path);
+      Lib.traverse(pb.partials, expandPBPartialsRecordWithComponentPartials.bind(null, this.pb_data.partials, Path.relative(this.cwd, ret.path)));
     }
     ret.protoboard = true;
   };
 
-  function expandPBPartialsRecordWithComponentPartials (pbdata, component_name, partials, root) {
-    var nr = Path.join('components', component_name, root);
+  function expandPBPartialsRecordWithComponentPartials (pbdata, component_path, partials, root) {
+    var nr = Path.join(component_path, root);
     if (pbdata[nr]) return; //won't affect webapp partials data ....
     pbdata[nr] = partials;
   }
@@ -590,7 +599,7 @@ function createPBWebAppReader (Lib, Node) {
     if (!this.isReady()) throw new Error('Unable to finalize since I am not as ready as you might think...');
 
     this._preparelocalPartials();
-    Lib.traverse(this.pb_data.partials, this._prepare_partials.bind(this));
+    Lib.traverseShallow(this.pb_data.partials, this._finalize_partials.bind(this));
     this.resolveAssets();
   };
 

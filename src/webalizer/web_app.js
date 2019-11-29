@@ -9,8 +9,8 @@ var MANDATORY_DIRS = [
 
 function createWebAppInit (lib, Node) {
   'use strict';
-  var Bower = require('allex_bowerhelperssdklib')(lib),
-    Q = lib.q,
+  //var Bower = require('allex_bowerhelperssdklib')(lib),
+  var  Q = lib.q,
     Fs = Node.Fs,
     Path = Node.Path;
 
@@ -22,7 +22,7 @@ function createWebAppInit (lib, Node) {
     Fs.ensureDirSync(resolvePath(basedirname, dirname));
   }
 
-  function init (dirname, bower, frameworks) {
+  function init (dirname, frameworks) {
 
     dirname = Path.resolve(process.cwd(), dirname);
 
@@ -38,7 +38,7 @@ function createWebAppInit (lib, Node) {
       framework_root = Path.resolve(__dirname, '..', '..', 'templates', 'webapp', 'frameworks');
 
     Fs.copySync (Path.join (template_root, '*'), dirname);
-    Fs.copySync (Path.join (template_root, '.bowerrc'), dirname);
+    //Fs.copySync (Path.join (template_root, '.bowerrc'), dirname);
     Fs.symlinkSync (Path.join (sdk_common, 'layouts'), Path.join (dirname, 'layouts'));
     Fs.symlinkSync (Path.join (sdk_common, 'includes'), Path.join (dirname, 'includes'));
 

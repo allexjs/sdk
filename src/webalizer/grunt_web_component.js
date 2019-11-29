@@ -63,6 +63,18 @@ WebComponent.prototype.dumpBrowserify = function (ret) {
   }
 };
 
+WebComponent.prototype.dumpCompass = function (ret) {
+  var c = this.config.compass;
+  if (!ret.compass) ret.compass = {dist:{options:lib.extend({basePath:process.cwd()}, {cssDir:'dist'}, c)}};
+};
+
+WebComponent.prototype.dumpCopy = function (ret) {
+  var c = this.config.copy;
+  if (!ret.copy) {
+    ret.copy = {dist:{files:c}};
+  }
+};
+
 function doTrim (string) {return string ? string.trim() : string;}
 
 WebComponent.prototype.dump = function () {
@@ -108,6 +120,16 @@ WebComponent.prototype.dump = function () {
     this.dumpBrowserify(ret);
     default_tasks.unshift('browserify');
   }
+  if (c.compass) {
+    this.dumpCompass(ret);
+    default_tasks.unshift('compass');
+  }
+  /*
+  if (c.copy) {
+    this.dumpCopy(ret);
+    default_tasks.unshift('copy');
+  }
+  */
 
   if (ret.concat) {
     if (!ret.concat.options) ret.concat.options = {};
@@ -143,7 +165,9 @@ function do_grunt (grunt) {
 module.exports = {
   grunt:do_grunt,
   GruntTasks : [
+    'grunt-contrib-copy',
     'grunt-contrib-concat',
+    'grunt-contrib-compass',
     'hers-grunt-contrib-uglify',
     'grunt-contrib-jshint',
     'grunt-browserify'

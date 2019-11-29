@@ -40,7 +40,7 @@ function onDecode (target, ddec) {
     if (Fs.existsSync(Path.join(rtarget, '.git'))){
       d.reject('git repo, cowardly retreating');
     }else{
-      Node.executeCommand('rm -rf '+rtarget+' && git clone '+ddec.gitclonestring+' '+ctarget+' && cd '+ctarget+' && npm install --no-save --no-package-lock && cd - && cd '+rdir+' && ln -s '+Path.relative(rdir, ctarget), d, null, true);
+      Node.executeCommand('npm uninstall '+target+' && rm -rf '+rtarget+' && git clone '+ddec.gitclonestring+' '+ctarget+' && cd '+ctarget+' && npm install --no-save --no-package-lock && cd - && cd '+rdir+' && ln -s '+Path.relative(rdir, ctarget), d, null, true);
     }
   } else {
     Node.info('AllEx service not detected, will try regular module');

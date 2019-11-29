@@ -1,10 +1,20 @@
 #!/usr/bin/env node
-var config = require('../src/webalizer/grunt_web_app.js'),
+var lib = require('allexlib'),
+  webappbuildlib = require('allex_gruntwebappbuildersdklib')(lib),
+  config = webappbuildlib.build,
+  compiler = webappbuildlib.compile.findAndGo,
+  /*
+  config = require('../src/webalizer/grunt_web_app.js'),
   compiler = require('../src/webapp/compilepage.js').findAndGo,
-  lib = require('allexlib'),
+  */
   Grunter = require('allex_grunthelperssdklib')(lib),
   BasicProgram = require('allex_basicprogramsdklib')(lib),
   p = new BasicProgram(__dirname);
+
+function collector (val, arry) {
+  arry.push(val);
+  return arry;
+}
 
 p.program
 .usage('allex-webapp-build [OPTIONS] : Build your webapps using this tool')
@@ -13,9 +23,9 @@ p.program
 .option('-v, --verbose', 'Do a verbose run')
 .option('-r, --rebuild', 'Rebuild ProtoBoardComponents')
 .option('-d, --development', 'Devel build')
+.option('-s, --symlinkinghints [string]', 'Directories for symlinking to missing modules', collector, [])
 .option('-o, --distro <string>', 'Build distro, overrides production/devel selection if given')
 p.go();
-
 
 compiler (process.cwd(), p.program.distro);
 Grunter.goforGrunt(config, {
@@ -23,6 +33,8 @@ Grunter.goforGrunt(config, {
   devel : p.program.development,
   clean : p.program.clean,
   rebuild : p.program.clean || p.program.rebuild,
-  distro : p.program.distro
+  symlinkinghints: p.program.symlinkinghints,
+  distro : p.program.distro,
+  verbose: p.program.verbose
 },{verbose: p.program.verbose});
 

@@ -8,7 +8,6 @@ function createAddPage (Lib, Node) {
   var Fs = Node.Fs,
     Path = Node.Path,
     Protoboard = require('allex_protoboardhelperssdklib')(Lib),
-    Git = require('allex_githelperssdklib')(Lib),
     Q = Lib.q,
     QLib = Lib.qlib;
 
@@ -36,6 +35,7 @@ function createAddPage (Lib, Node) {
 
     var templates = Path.resolve(__dirname, '..', '..', 'templates', 'webapp', 'page');
     ///copy JS files ...
+    Node.executeCommandSync('cp -r '+Path.resolve(templates, '.allexns.json')+' '+this._cwd);
     Node.executeCommandSync('mkdir -p '+this._js_path+' && cp -r '+Path.resolve(templates, 'js', '*')+' '+this._js_path);
     Fs.writeFileSync(this._allex_dev, Fs.readFileSync (Path.resolve(templates, 'allexdev.js'),'utf-8').replace ('__PAGENAME__', this.page));
 
