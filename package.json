@@ -1,6 +1,6 @@
 {
   "name": "allexsdk",
-  "version": "1.0.13",
+  "version": "1.0.14",
   "description": "AllexJS sdk",
   "main": "index.js",
   "scripts": {
@@ -29,16 +29,10 @@
     "allex-ws-webapp-clone": "./commandline/allex-ws-webapp-clone",
     "allex-ws-webapp-relink": "./commandline/allex-ws-webapp-relink",
     "allex-ws-webapp-remove": "./commandline/allex-ws-webapp-remove",
-    "allex-webapp-compilepage": "./commandline/allex-webapp-compilepage",
-    "allex-webapp-addpage": "./commandline/allex-webapp-addpage",
     "allex-ws-webapp-clonedeployment": "./commandline/allex-ws-webapp-clonedeployment",
     "allex-ws-webapp-removedeployment": "./commandline/allex-ws-webapp-removedeployment",
     "allex-ws-module-clone": "./commandline/allex-ws-module-clone",
     "allex-ws-module-forget": "./commandline/allex-ws-module-forget",
-    "allex-webapp-create": "./commandline/allex-webapp-create",
-    "allex-webapp-build": "./commandline/allex-webapp-build",
-    "allex-webapp-deploy": "./commandline/allex-webapp-deploy",
-    "allex-webapp-clear": "./commandline/allex-webapp-clear",
     "allex-component-build": "./commandline/allex-component-build",
     "allex-ws-project-create": "./commandline/allex-ws-project-create",
     "allex-update-userclass-for-crypto": "./commandline/allex-update-userclass-for-crypto"
@@ -53,7 +47,7 @@
     "allex_nodehelpersserverruntimelib": "1.x",
     "allex_npminstallserverruntimelib": "1.x",
     "allex_protoboardhelperssdklib": "1.x",
-    "js-beautify": "1.6.14"
+    "js-beautify": "1.13.x"
   },
   "keywords": [
     "ecosystem:AllexJS",
