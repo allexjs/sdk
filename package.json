@@ -1,6 +1,6 @@
 {
   "name": "allexsdk",
-  "version": "1.0.14",
+  "version": "1.0.15",
   "description": "AllexJS sdk",
   "main": "index.js",
   "scripts": {
@@ -13,6 +13,7 @@
   "bin": {
     "allex-bash-realpath": "./commandline/allex-bash-realpath",
     "allex-bower-install": "./commandline/allex-bower-install",
+    "allex-symlink": "./commandline/allex-symlink",
     "allex-shell-bsfl": "./commandline/allex-shell-bsfl.sh",
     "allex-shell-tools": "./commandline/allex-shell-tools.sh",
     "allex-service-create": "./commandline/allex-service-create",

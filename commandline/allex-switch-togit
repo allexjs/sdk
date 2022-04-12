@@ -5,7 +5,8 @@ var lib = require('allexlib'),
   Path = Node.Path,
   q = lib.q,
   BasicProgram = require('allex_basicprogramsdklib')(lib),
-  decode = require('../lib/switchgitdecoder.js')(lib, Node);
+  decode = require('../lib/switchgitdecoder.js')(lib, Node),
+  iswindows = process.platform.indexOf('win') == 0;
 
 var p = new BasicProgram(__dirname);
 p.program.usage('Use this tool to switch given node module to a git repo: allex-switch-togit <service_or_module>');
@@ -40,7 +41,12 @@ function onDecode (target, ddec) {
     if (Fs.existsSync(Path.join(rtarget, '.git'))){
       d.reject('git repo, cowardly retreating');
     }else{
-      Node.executeCommand('rm -rf '+rtarget+' && git clone '+ddec.gitclonestring+' '+ctarget+' && cd '+ctarget+' && npm install --no-save --no-package-lock && cd - && cd '+rdir+' && ln -s '+Path.relative(rdir, ctarget), d, null, true);
+      if (iswindows) {
+        var cwd = process.cwd();
+        Node.executeCommand('rd /S /Q '+rtarget+' && git clone '+ddec.gitclonestring+' '+ctarget+' && cd '+ctarget+' && npm install --no-save --no-package-lock && cd '+cwd+' && cd '+rdir+' && allex-symlink '+Path.relative(rdir, ctarget), d, null, true);
+      } else {
+        Node.executeCommand('rm -rf '+rtarget+' && git clone '+ddec.gitclonestring+' '+ctarget+' && cd '+ctarget+' && npm install --no-save --no-package-lock && cd - && cd '+rdir+' && ln -s '+Path.relative(rdir, ctarget), d, null, true);
+      }
     }
   } else {
     Node.info('AllEx service not detected, will try regular module');
@@ -63,7 +69,12 @@ function onDecode (target, ddec) {
           }else{
             ctarget = Path.join('allexjs_modules_dev', target);
             console.log('pck.repository', pck.repository);
-            Node.executeCommand('rm -rf '+Path.join('node_modules',target)+' && git clone '+pck.repository.url.replace(/\.git$/, '')+' '+ctarget+' && cd '+ctarget+' && npm install --no-save --no-package-lock && cd - && cd node_modules && ln -s ../allexjs_modules_dev/'+target, d, null, true);
+            if (iswindows) {
+              var cwd = process.cwd();
+              Node.executeCommand('rd /S /Q '+Path.join('node_modules',target)+' && git clone '+pck.repository.url.replace(/\.git$/, '')+' '+ctarget+' && cd '+ctarget+' && npm install --no-save --no-package-lock && cd '+cwd+'+ && cd node_modules && allex-symlink ../allexjs_modules_dev/'+target, d, null, true);
+            } else {
+              Node.executeCommand('rm -rf '+Path.join('node_modules',target)+' && git clone '+pck.repository.url.replace(/\.git$/, '')+' '+ctarget+' && cd '+ctarget+' && npm install --no-save --no-package-lock && cd - && cd node_modules && ln -s ../allexjs_modules_dev/'+target, d, null, true);
+            }
           }
         }catch (e) {
           d.reject(e);

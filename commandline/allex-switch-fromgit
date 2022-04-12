@@ -7,7 +7,8 @@ var lib = require('allexlib'),
   ChildProcess = require('child_process'),
   BasicProgram = require('allex_basicprogramsdklib')(lib),
   decode = require('../lib/switchgitdecoder.js')(lib, Node),
-  Git = require('allex_githelperssdklib')(lib);
+  Git = require('allex_githelperssdklib')(lib),
+  iswindows = process.platform.indexOf('win') == 0;
 
 var p = new BasicProgram(__dirname);
 p.program.usage('Use this tool to switch given node module git repo back to the node module : allex-switch-fromgit <service_or_module>');
@@ -23,10 +24,6 @@ if (args.length < 1) {
 var current = process.cwd();
 if (!Fs.dirExists('node_modules')) {
   Fs.mkdirSync('node_modules');
-}
-
-function execSync (command, cwd){
-  return ChildProcess.execSync(command,{cwd: cwd || 'node_modules'}).toString();
 }
 
 function remifemptyer () {
@@ -69,7 +66,11 @@ function onDecode (defer, target, ddc) {
       remifemptyer,
       remifemptyer
     );
-    Node.executeCommand('rm '+ddc.rtarget+' && rm -rf '+resolve_path+' && npm install '+repo, defer, null, true);
+    if (iswindows) {
+      Node.executeCommand('rd '+ddc.rtarget+' && rd /S /Q '+resolve_path+' && npm install '+repo, defer, null, true);
+    } else {
+      Node.executeCommand('rm '+ddc.rtarget+' && rm -rf '+resolve_path+' && npm install '+repo, defer, null, true);
+    }
   }catch (e) {
     console.log('===>', e.message, e.stack);
     defer.reject(e);

@@ -1,0 +1,29 @@
+#!/usr/bin/env node
+var lib = require('allexlib'),
+  Fs = require('fs'),
+  Path = require('path'); //Fs and Path have to be regular in order to allow for switch to/from git even for allex:nodehelpers:serverruntimelib
+
+if (process.argv.length != 3) {
+  console.error("Just a single parameter is needed for allex-symlink");
+  process.exit(1);
+}
+
+var target = process.argv[2];
+
+var iswindows = process.platform.indexOf('win') == 0;
+
+if (!Fs.existsSync(target)) {
+  console.error("Target", target, "does not exist");
+}
+
+if (iswindows) {
+  var targetname = Path.basename(target);
+  if (Fs.existsSync(targetname)) {
+    console.error("Cannot make symlink", targetname, "because it already exists");
+    process.exit(0);
+  }
+  Fs.symlinkSync(target, targetname, 'junction');
+  return;
+}
+
+Node.executeCommand("ln -s "+target);
