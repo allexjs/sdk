@@ -1,6 +1,6 @@
 {
   "name": "allexsdk",
-  "version": "1.0.15",
+  "version": "1.0.16",
   "description": "AllexJS sdk",
   "main": "index.js",
   "scripts": {
@@ -46,7 +46,7 @@
     "allex_githelperssdklib": "1.x",
     "allex_grunthelperssdklib": "1.x",
     "allex_nodehelpersserverruntimelib": "1.x",
-    "allex_npminstallserverruntimelib": "1.x",
+    "allex_npminstallserverruntimelib": "2.x",
     "allex_protoboardhelperssdklib": "1.x",
     "js-beautify": "1.13.x"
   },
